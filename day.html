@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Magical Romantic Night - Valentine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    body {
+      width: 100vw;
+      height: 100vh;
+      min-height: 100vh;
+      min-width: 100vw;
+      box-sizing: border-box;
+      position: relative;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      background: linear-gradient(180deg, #0a1647 0%, #1a1a40 100%);
+      transition: background 1s;
+    }
+    #bg-canvas, #moon-canvas, #rose-canvas, #heart-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      display: block;
+    }
+    #moon-canvas { z-index: 1; }
+    #bg-canvas { z-index: 2; }
+    #rose-canvas { z-index: 3; }
+    #heart-canvas { z-index: 4; }
+    .center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff0fa;
+      font-size: 2.5rem;
+      text-align: center;
+      letter-spacing: 2px;
+      text-shadow:
+        0 0 12px #ffb3ec,
+        0 0 24px #a259f7,
+        0 0 48px #ffb3ec,
+        0 0 96px #a259f7;
+      font-weight: bold;
+      animation: neon-glow 2.5s infinite alternate, float-text 6s ease-in-out infinite;
+      z-index: 10;
+      user-select: none;
+      width: 90vw;
+      max-width: 900px;
+      line-height: 1.2;
+      padding: 0 10px;
+    }
+    @keyframes neon-glow {
+      0% {
+        text-shadow:
+          0 0 12px #ffb3ec,
+          0 0 24px #a259f7,
+          0 0 48px #ffb3ec,
+          0 0 96px #a259f7;
+        color: #fff0fa;
+      }
+      100% {
+        text-shadow:
+          0 0 24px #ffb3ec,
+          0 0 48px #a259f7,
+          0 0 96px #ffb3ec,
+          0 0 192px #a259f7;
+        color: #ffe1f6;
+      }
+    }
+    @keyframes float-text {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+      50% { transform: translate(-50%, -50%) translateY(-18px); }
+    }
+    @media (max-width: 600px) {
+      .center-text {
+        font-size: 1.2rem;
+        padding: 0 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <canvas id="moon-canvas"></canvas>
+  <canvas id="rose-canvas"></canvas>
+  <canvas id="heart-canvas"></canvas>
+  <div class="center-text">Happy Valentine’s Day Prabinda(My all thing is you)❤️</div>
+  <script>
+    // Responsive canvas setup
+    function resizeCanvas(canvas) {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    const bgCanvas = document.getElementById('bg-canvas');
+    const moonCanvas = document.getElementById('moon-canvas');
+    const roseCanvas = document.getElementById('rose-canvas');
+    const heartCanvas = document.getElementById('heart-canvas');
+    [bgCanvas, moonCanvas, roseCanvas, heartCanvas].forEach(resizeCanvas);
+    window.addEventListener('resize', () => {
+      [bgCanvas, moonCanvas, roseCanvas, heartCanvas].forEach(resizeCanvas);
+    });
+
+    // Twinkling Stars
+    const starColors = ['#fff', '#ffe1f6', '#b8aaff', '#ffd6e0', '#e0c3fc'];
+    let stars = [];
+    function createStars() {
+      const w = bgCanvas.width, h = bgCanvas.height;
+      const count = Math.floor((w * h) / 1800);
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h * 0.7,
+          r: Math.random() * 1.2 + 0.3,
+          color: starColors[Math.floor(Math.random() * starColors.length)],
+          twinkle: Math.random() * Math.PI * 2,
+          speed: Math.random() * 0.02 + 0.01
+        });
+      }
+    }
+    createStars();
+    window.addEventListener('resize', createStars);
+
+    function drawStars(ctx, t) {
+      ctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      for (const s of stars) {
+        const tw = 0.5 + 0.5 * Math.sin(t * s.speed + s.twinkle);
+        ctx.globalAlpha = 0.7 * tw + 0.3;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r * (0.7 + 0.6 * tw), 0, 2 * Math.PI);
+        ctx.fillStyle = s.color;
+        ctx.shadowColor = s.color;
+        ctx.shadowBlur = 8 * tw;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+
+    // Glowing Moon
+    function drawMoon(ctx, t) {
+      ctx.clearRect(0, 0, moonCanvas.width, moonCanvas.height);
+      const w = moonCanvas.width, h = moonCanvas.height;
+      // Moon position and movement
+      const moonX = w * 0.78 + Math.sin(t * 0.08) * 18;
+      const moonY = h * 0.22 + Math.cos(t * 0.07) * 10;
+      const moonR = Math.max(80, Math.min(w, h) * 0.13);
+      // Glow
+      for (let i = 8; i > 0; i--) {
+        ctx.beginPath();
+        ctx.arc(moonX, moonY, moonR + i * 10, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(255, 245, 255, ${0.04 * i})`;
+        ctx.fill();
+      }
+      // Main moon
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, moonR, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(255, 245, 255, 0.98)';
+      ctx.shadowColor = '#ffe1f6';
+      ctx.shadowBlur = 32;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // Subtle craters
+      for (let i = 0; i < 6; i++) {
+        ctx.beginPath();
+        ctx.arc(
+          moonX + Math.cos(i) * moonR * 0.5 + Math.sin(t * 0.2 + i) * 2,
+          moonY + Math.sin(i) * moonR * 0.4 + Math.cos(t * 0.2 + i) * 2,
+          7 + Math.sin(t * 0.5 + i) * 2,
+          0, 2 * Math.PI
+        );
+        ctx.fillStyle = 'rgba(220, 200, 230, 0.18)';
+        ctx.fill();
+      }
+    }
+
+    // Animated Roses
+    const roseColors = [
+      {petal: '#ff5fa2', edge: '#ffb3ec', stem: '#5e8c61', leaf: '#a3e635'},
+      {petal: '#e75480', edge: '#ffd6e0', stem: '#4e944f', leaf: '#b8ffb3'},
+      {petal: '#a259f7', edge: '#e0c3fc', stem: '#5e8c61', leaf: '#a3e635'}
+    ];
+    let roses = [];
+    function createRoses() {
+      const w = roseCanvas.width, h = roseCanvas.height;
+      const count = Math.max(4, Math.floor(w / 220));
+      roses = [];
+      for (let i = 0; i < count; i++) {
+        const x = (w / (count + 1)) * (i + 1) + (Math.random() - 0.5) * 30;
+        const color = roseColors[i % roseColors.length];
+        roses.push({
+          x,
+          baseY: h,
+          growY: h - (Math.random() * 80 + 120),
+          height: Math.random() * 60 + 120,
+          tOffset: Math.random() * 1000,
+          color
+        });
+      }
+    }
+    createRoses();
+    window.addEventListener('resize', createRoses);
+
+    function drawRose(ctx, rose, t) {
+      // Growth animation
+      const growProgress = Math.min(1, (t * 0.12 + rose.tOffset) % 1.2);
+      const y = rose.baseY - rose.height * growProgress;
+      // Stem
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(rose.x, rose.baseY);
+      ctx.bezierCurveTo(
+        rose.x - 8, rose.baseY - rose.height * 0.4 * growProgress,
+        rose.x + 8, rose.baseY - rose.height * 0.7 * growProgress,
+        rose.x, y
+      );
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = rose.color.stem;
+      ctx.shadowColor = rose.color.stem;
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      // Leaves
+      if (growProgress > 0.3) {
+        ctx.beginPath();
+        ctx.ellipse(rose.x - 10, rose.baseY - rose.height * 0.5 * growProgress, 12, 6, -0.7, 0, 2 * Math.PI);
+        ctx.fillStyle = rose.color.leaf;
+        ctx.globalAlpha = 0.7;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.ellipse(rose.x + 10, rose.baseY - rose.height * 0.7 * growProgress, 10, 5, 0.7, 0, 2 * Math.PI);
+        ctx.fillStyle = rose.color.leaf;
+        ctx.globalAlpha = 0.7;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      // Petals
+      if (growProgress > 0.7) {
+        ctx.save();
+        ctx.translate(rose.x, y);
+        for (let i = 0; i < 6; i++) {
+          ctx.rotate(Math.PI / 3);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(8, -18, 24, -8, 0, -28);
+          ctx.bezierCurveTo(-24, -8, -8, -18, 0, 0);
+          ctx.fillStyle = rose.color.petal;
+          ctx.globalAlpha = 0.8;
+          ctx.shadowColor = rose.color.edge;
+          ctx.shadowBlur = 8;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+        // Center
+        ctx.beginPath();
+        ctx.arc(0, -6, 10, 0, 2 * Math.PI);
+        ctx.fillStyle = rose.color.edge;
+        ctx.globalAlpha = 0.9;
+        ctx.shadowColor = rose.color.petal;
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+
+    // Floating Glowing Heart Particles
+    const heartColors = ['#ff5fa2', '#ffb3ec', '#ffe1f6', '#a259f7', '#ffd6e0'];
+    let hearts = [];
+    function createHearts() {
+      const w = heartCanvas.width, h = heartCanvas.height;
+      const count = Math.floor((w * h) / 12000);
+      hearts = [];
+      for (let i = 0; i < count; i++) {
+        hearts.push({
+          x: Math.random() * w,
+          y: h + Math.random() * h * 0.3,
+          size: Math.random() * 18 + 10,
+          speed: Math.random() * 0.4 + 0.2,
+          float: Math.random() * Math.PI * 2,
+          color: heartColors[Math.floor(Math.random() * heartColors.length)],
+          alpha: Math.random() * 0.5 + 0.5
+        });
+      }
+    }
+    createHearts();
+    window.addEventListener('resize', createHearts);
+
+    function drawHeart(ctx, x, y, size, color, alpha, t) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(size / 32, size / 32);
+      ctx.beginPath();
+      ctx.moveTo(0, 8);
+      ctx.bezierCurveTo(0, 0, -16, 0, -16, 8);
+      ctx.bezierCurveTo(-16, 20, 0, 28, 0, 32);
+      ctx.bezierCurveTo(0, 28, 16, 20, 16, 8);
+      ctx.bezierCurveTo(16, 0, 0, 0, 0, 8);
+      ctx.closePath();
+      ctx.globalAlpha = alpha * (0.7 + 0.3 * Math.sin(t * 1.2));
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    // Animation Loop
+    function animate() {
+      const t = performance.now() / 1000;
+      // Stars
+      drawStars(bgCanvas.getContext('2d'), t);
+      // Moon
+      drawMoon(moonCanvas.getContext('2d'), t);
+      // Roses
+      const roseCtx = roseCanvas.getContext('2d');
+      roseCtx.clearRect(0, 0, roseCanvas.width, roseCanvas.height);
+      for (const rose of roses) drawRose(roseCtx, rose, t);
+      // Hearts
+      const heartCtx = heartCanvas.getContext('2d');
+      heartCtx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+      for (const heart of hearts) {
+        heart.y -= heart.speed;
+        heart.x += Math.sin(t * 0.7 + heart.float) * 0.3;
+        if (heart.y < -40) {
+          heart.y = heartCanvas.height + 20;
+          heart.x = Math.random() * heartCanvas.width;
+        }
+        drawHeart(heartCtx, heart.x, heart.y, heart.size, heart.color, heart.alpha, t + heart.float);
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Smooth transitions on resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        createStars();
+        createRoses();
+        createHearts();
+      }, 200);
+    });
+  </script>
+</body>
+</html>
